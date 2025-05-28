@@ -27,25 +27,15 @@ pub mod vault_anchor {
     }
 }
 
-#[account]
-pub struct VaultState {
-    pub vault_bump: u8,
-    pub state_bump: u8,
-}
-
-impl Space for VaultState {
-    const INIT_SPACE: usize = 8 + 1 + 1;
-}
-
 #[derive(Accounts)]
 pub struct Initialize<'info> {
     #[account(mut)]
     pub user: Signer<'info>,
 
     #[account(
-        init,
+        init,   // this account is getting initialized in this instruction
         payer = user,
-        seeds = [b"state", user.key().as_ref()],
+        seeds = [b"state", user.key().as_ref()], 
         bump,
         space = VaultState::INIT_SPACE,
     )]
@@ -65,6 +55,16 @@ impl<'info> Initialize<'info> {
         self.vault_state.state_bump = bumps.vault_state;
         Ok(())
     }
+}
+
+#[account]
+pub struct VaultState {
+    pub vault_bump: u8,
+    pub state_bump: u8,
+}
+
+impl Space for VaultState {
+    const INIT_SPACE: usize = 8 + 1 + 1;
 }
 
 #[derive(Accounts)]
